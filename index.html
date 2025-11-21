@@ -1,78 +1,26 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dynamic Soundboard</title>
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        background-size: cover;
-        background-position: center;
-        font-family: sans-serif;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        background-color: #222;
-        color: white;
-    }
-    h1 { font-size: 28px; margin-top: 20px; }
-    #buttons {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        max-width: 900px;
-        padding: 20px;
-    }
-    .sound-btn {
-        background: #444;
-        border: 2px solid #777;
-        color: white;
-        margin: 10px;
-        padding: 20px 30px;
-        border-radius: 15px;
-        font-size: 20px;
-        cursor: pointer;
-        min-width: 160px;
-        text-align: center;
-        touch-action: manipulation;
-    }
-    .sound-btn:active {
-        background: #666;
-        transform: scale(0.95);
-    }
-</style>
-</head>
-<body>
-<h1>Animal Soundboard</h1>
-<div id="buttons">Loading sounds…</div>
 <script>
 async function loadSounds() {
-    let container = document.getElementById("buttons");
+    const container = document.getElementById("buttons");
+
     try {
-        const response = await fetch("sounds/");
-        const text = await response.text();
-        const regex = /href="([^"]+\.mp3)"/g;
-        let files = [];
-        let match;
-        while ((match = regex.exec(text)) !== null) files.push(match[1]);
-        if (files.length === 0) {
-            container.innerHTML = "No MP3 files found in the sounds folder.";
-            return;
-        }
+        // Load the list of sounds from sounds.json
+        const res = await fetch("sounds/sounds.json");
+        const files = await res.json();
+
         container.innerHTML = "";
+
         files.forEach(file => {
-            let btn = document.createElement("button");
+            const btn = document.createElement("button");
             btn.className = "sound-btn";
             btn.textContent = file.replace(".mp3", "");
             btn.onclick = () => new Audio("sounds/" + file).play();
             container.appendChild(btn);
         });
-    } catch (e) {
-        container.innerHTML = "Unable to load sound files. Hosting with directory listing required.";
+
+    } catch (err) {
+        container.innerHTML = "Error loading sounds.json: " + err;
     }
 }
+
 loadSounds();
 </script>
-</body>
-</html>
